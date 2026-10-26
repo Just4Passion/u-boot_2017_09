@@ -1,0 +1,226 @@
+# ============================================================================
+# my-rk3568-min_defconfig
+# 目标：仅串口(UART2)+eMMC，能从 eMMC 启动并跳转内核，体积最小
+# ============================================================================
+
+# ==================== A. 平台与目标 ====================
+CONFIG_ARM=y
+CONFIG_ARCH_ROCKCHIP=y
+CONFIG_ROCKCHIP_RK3568=y
+CONFIG_TARGET_EVB_RK3568=y
+CONFIG_DEFAULT_DEVICE_TREE="rk3568-evb"
+CONFIG_SYS_MALLOC_F_LEN=0x80000
+
+# ==================== B. DDR/DMC（TPL 必需，禁止裁剪） ====================
+CONFIG_DM_DMC=y
+CONFIG_ROCKCHIP_DMC_FSP=y
+CONFIG_RAM=y
+CONFIG_SPL_RAM=y
+CONFIG_TPL_RAM=y
+CONFIG_ROCKCHIP_SDRAM_COMMON=y
+CONFIG_ROCKCHIP_TPL_INIT_DRAM_TYPE=0
+
+# ==================== C. 启动链 TPL→SPL→ATF→U-Boot（关键） ====================
+CONFIG_SPL_LIBCOMMON_SUPPORT=y
+CONFIG_SPL_LIBGENERIC_SUPPORT=y
+CONFIG_SPL_LIBDISK_SUPPORT=y
+CONFIG_SPL_SEPARATE_BSS=y
+CONFIG_SPL_BOARD_INIT=y
+CONFIG_SPL_DTB_MINIMUM=y
+CONFIG_SPL_OF_CONTROL=y
+# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
+# CONFIG_SPL_LEGACY_IMAGE_SUPPORT is not set
+CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION=y
+CONFIG_FIT=y
+CONFIG_FIT_IMAGE_POST_PROCESS=y
+CONFIG_SPL_LOAD_FIT=y
+CONFIG_SPL_FIT_IMAGE_POST_PROCESS=y
+CONFIG_ROCKCHIP_FIT_IMAGE=y
+CONFIG_ROCKCHIP_FIT_IMAGE_PACK=y
+CONFIG_ROCKCHIP_NEW_IDB=y
+CONFIG_SPL_FIT_GENERATOR="arch/arm/mach-rockchip/make_fit_atf.sh"
+CONFIG_SPL_ATF=y
+CONFIG_SPL_ATF_NO_PLATFORM_PARAM=y
+CONFIG_OF_LIVE=y
+CONFIG_OF_SPL_REMOVE_PROPS="clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
+
+# ==================== D. 串口 UART2 @1.5Mbps ====================
+CONFIG_DEBUG_UART=y
+CONFIG_SPL_SERIAL_SUPPORT=y
+CONFIG_BAUDRATE=1500000
+CONFIG_DEBUG_UART_BASE=0xFE660000
+CONFIG_DEBUG_UART_CLOCK=24000000
+CONFIG_DEBUG_UART_SHIFT=2
+CONFIG_SYS_CONSOLE_INFO_QUIET=y
+# CONFIG_DISPLAY_CPUINFO is not set
+CONFIG_BOOTDELAY=1
+
+# ==================== E. eMMC ====================
+CONFIG_CMD_MMC=y
+CONFIG_MMC_DW=y
+CONFIG_MMC_DW_ROCKCHIP=y
+CONFIG_MMC_SDHCI=y
+CONFIG_MMC_SDHCI_SDMA=y
+CONFIG_MMC_SDHCI_ROCKCHIP=y
+
+# ==================== F. 电源基础（RK809，强烈建议保留） ====================
+# ⚠️ 实测若关闭可稳定启动且功能正常，方可再评估裁剪
+CONFIG_DM_I2C=y
+CONFIG_SYS_I2C_ROCKCHIP=y
+CONFIG_DM_PMIC=y
+CONFIG_PMIC_RK8XX=y
+CONFIG_DM_REGULATOR=y
+CONFIG_REGULATOR_RK8XX=y
+CONFIG_DM_REGULATOR_FIXED=y
+CONFIG_DM_REGULATOR_GPIO=y
+CONFIG_IO_DOMAIN=y
+CONFIG_ROCKCHIP_IO_DOMAIN=y
+
+# ==================== G. DM 框架基础 ====================
+CONFIG_REGMAP=y
+CONFIG_SPL_REGMAP=y
+CONFIG_SYSCON=y
+CONFIG_SPL_SYSCON=y
+CONFIG_CLK=y
+CONFIG_SPL_CLK=y
+CONFIG_CLK_SCMI=y
+CONFIG_SCMI_FIRMWARE=y
+CONFIG_DM_RESET=y
+CONFIG_SPL_DM_RESET=y
+CONFIG_SPL_RESET_ROCKCHIP=y
+CONFIG_PINCTRL=y
+CONFIG_SPL_PINCTRL=y
+CONFIG_SYSRESET=y
+CONFIG_SPL_DRIVERS_MISC_SUPPORT=y
+CONFIG_MISC=y
+CONFIG_SPL_MISC=y
+CONFIG_ROCKCHIP_GPIO=y
+CONFIG_ROCKCHIP_GPIO_V2=y
+CONFIG_ROCKCHIP_OTP=y
+CONFIG_SPL_ROCKCHIP_SECURE_OTP=y
+CONFIG_LIB_RAND=y
+CONFIG_LIB_HW_RAND=y
+CONFIG_RNG_ROCKCHIP=y
+CONFIG_RANDOM_UUID=y
+CONFIG_DM_RNG=y
+
+# ==================== H. 分区命令 ====================
+CONFIG_CMD_GPT=y
+CONFIG_EFI_PARTITION_ENTRIES_NUMBERS=64
+CONFIG_CMD_BOOT_ROCKCHIP=y
+CONFIG_CMD_BOOTZ=y
+
+# ==================== I. 尺寸优化库 ====================
+CONFIG_USE_TINY_PRINTF=y
+CONFIG_SPL_TINY_MEMSET=y
+# CONFIG_SPL_SYS_DCACHE_OFF is not set
+
+# ==================== J. 显式关闭（最小化） ====================
+# --- Android / AVB ---
+# CONFIG_ANDROID_BOOTLOADER is not set
+# CONFIG_ANDROID_AVB is not set
+# CONFIG_ANDROID_BOOT_IMAGE_HASH is not set
+# CONFIG_CMD_BOOT_ANDROID is not set
+# CONFIG_AVB_LIBAVB is not set
+# CONFIG_AVB_LIBAVB_AB is not set
+# CONFIG_AVB_LIBAVB_ATX is not set
+# CONFIG_AVB_LIBAVB_USER is not set
+# CONFIG_RK_AVB_LIBAVB_USER is not set
+# --- 安全 / 签名 / 加密 / 解压 ---
+# CONFIG_RSA is not set
+# CONFIG_SPL_RSA is not set
+# CONFIG_FIT_SIGNATURE is not set
+# CONFIG_SPL_FIT_SIGNATURE is not set
+# CONFIG_FIT_HW_CRYPTO is not set
+# CONFIG_SPL_FIT_HW_CRYPTO is not set
+# CONFIG_SPL_DM_CRYPTO is not set
+# CONFIG_SPL_ROCKCHIP_CRYPTO_V2 is not set
+# CONFIG_DM_CRYPTO is not set
+# CONFIG_ROCKCHIP_CRYPTO_V2 is not set
+# CONFIG_SHA512 is not set
+# CONFIG_XBC is not set
+# CONFIG_LZ4 is not set
+# CONFIG_LZMA is not set
+# CONFIG_SPL_GZIP is not set
+# CONFIG_ERRNO_STR is not set
+# --- OP-TEE 客户端（ATF 保留，不用 OP-TEE 服务） ---
+# CONFIG_OPTEE_CLIENT is not set
+# CONFIG_OPTEE_V2 is not set
+# --- USB ---
+# CONFIG_USB is not set
+# CONFIG_CMD_USB is not set
+# CONFIG_USB_DWC3 is not set
+# CONFIG_USB_DWC3_GADGET is not set
+# CONFIG_USB_GADGET is not set
+# CONFIG_USB_GADGET_DOWNLOAD is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_CMD_USB_MASS_STORAGE is not set
+# CONFIG_FASTBOOT_BUF_ADDR is not set
+# CONFIG_FASTBOOT_BUF_SIZE is not set
+# CONFIG_FASTBOOT_FLASH is not set
+# CONFIG_FASTBOOT_FLASH_MMC_DEV is not set
+# --- 网络 / TFTP ---
+# CONFIG_DM_ETH is not set
+# CONFIG_DM_ETH_PHY is not set
+# CONFIG_DWC_ETH_QOS is not set
+# CONFIG_GMAC_ROCKCHIP is not set
+# CONFIG_CMD_TFTPPUT is not set
+# CONFIG_CMD_TFTP_BOOTM is not set
+# CONFIG_CMD_TFTP_FLASH is not set
+# --- 显示 / DRM / LCD ---
+# CONFIG_DM_VIDEO is not set
+# CONFIG_DISPLAY is not set
+# CONFIG_DRM_ROCKCHIP is not set
+# CONFIG_LCD is not set
+# --- NAND / SPI 存储 ---
+# CONFIG_MTD is not set
+# CONFIG_CMD_MTD is not set
+# CONFIG_CMD_NAND is not set
+# CONFIG_CMD_MTD_BLK is not set
+# CONFIG_NAND is not set
+# CONFIG_SPL_NAND_SUPPORT is not set
+# CONFIG_SPL_SPI_FLASH_SUPPORT is not set
+# CONFIG_SPL_SPI_SUPPORT is not set
+# CONFIG_SPI_FLASH is not set
+# CONFIG_ROCKCHIP_SFC is not set
+# --- 其它非必需 ---
+# CONFIG_DM_FUEL_GAUGE is not set
+# CONFIG_POWER_FG_RK817 is not set
+# CONFIG_REGULATOR_FAN53555 is not set
+# CONFIG_REGULATOR_PWM is not set
+# CONFIG_PWM_ROCKCHIP is not set
+# CONFIG_DM_CHARGE_DISPLAY is not set
+# CONFIG_CHARGE_ANIMATION is not set
+# CONFIG_DM_KEY is not set
+# CONFIG_RK8XX_PWRKEY is not set
+# CONFIG_ADC_KEY is not set
+# CONFIG_PHY_ROCKCHIP_INNO_USB2 is not set
+# CONFIG_PHY_ROCKCHIP_NANENG_COMBOPHY is not set
+# CONFIG_PHY_ROCKCHIP_NANENG_EDP is not set
+# CONFIG_ROCKCHIP_VENDOR_PARTITION is not set
+# CONFIG_CMD_DTIMG is not set
+# CONFIG_SPL_MMC_WRITE is not set
+# CONFIG_SPL_MTD_SUPPORT is not set
+# CONFIG_SPL_MTD_WRITE is not set
+# CONFIG_SPL_AB is not set
+# CONFIG_CMD_ELF is not set
+# CONFIG_CMD_IMI is not set
+# CONFIG_CMD_IMLS is not set
+# CONFIG_CMD_XIMG is not set
+# CONFIG_CMD_LZMADEC is not set
+# CONFIG_CMD_UNZIP is not set
+# CONFIG_CMD_FLASH is not set
+# CONFIG_CMD_FPGA is not set
+# CONFIG_CMD_LOADB is not set
+# CONFIG_CMD_LOADS is not set
+# CONFIG_CMD_ITEST is not set
+# CONFIG_CMD_SETEXPR is not set
+# CONFIG_CMD_MISC is not set
+# CONFIG_CMD_CHARGE_DISPLAY is not set
+# CONFIG_SPL_DOS_PARTITION is not set
+# CONFIG_ISO_PARTITION is not set
+# CONFIG_NET_TFTP_VARS is not set
+# CONFIG_EFI_LOADER is not set
+
+# ==================== K. Rockchip 标准流程（建议） ====================
+CONFIG_USING_KERNEL_DTB=y
